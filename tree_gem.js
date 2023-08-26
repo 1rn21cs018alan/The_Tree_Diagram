@@ -99,70 +99,257 @@ function randBranch(branchPath) {
     }
 }
 
-function main() {
-    // let n = parseInt(prompt("Enter maximum no of branches"));
-    // let loopCount = parseInt(prompt("Enter no of levels"));
-    let n=1
-    let loopCount=1
-    const canvas = document.getElementById('canvas1');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    let branchPath = new Array(n).fill(-1);
-    branchPath[Math.floor(n / 2)] = 1;
-    blit(branchPath);
-    logScreen();
-    for (let i = 0; i < loopCount; i++) {
-        randDel(branchPath);
-        blit(branchPath);
-        randBranch(branchPath);
-    }
-    logScreen();
-}
 
-function drawGradientLine(startX, startY, endX, endY, width) {
+function draw_Line(X, Y, width,color='blue') {
     const canvas = document.getElementById('canvas1');
     const context = canvas.getContext('2d');
+    // context.globalCompositeOperation = 'lighter';
 
-    const gradient = context.createLinearGradient(startX, startY, endX, endY);
-    gradient.addColorStop(0, 'blue');
-    gradient.addColorStop(1, 'transparent');
+    const gradient = context.createLinearGradient(X-width/2, Y, X+width/2, Y);
+    custom_gradient(gradient,color);
 
     context.beginPath();
-    context.moveTo(startX, startY);
-    context.lineTo(endX, endY);
+    context.moveTo(X, Y);
+    context.lineTo(X, Y+width);
     context.strokeStyle = gradient;
-    context.lineWidth = width;
+    context.lineWidth = 0.4*width;
     context.stroke();
 }
 
-main();
-draw_Left_Branch(200,100,50);
+
+// draw_Left_Branch(200,100,50);
+// draw_Right_Branch(200,100,50);
+// draw_Line(200,100,50);
+// draw_Stop(200,100,50);
 function draw_Left_Branch(x,y,width,color='blue')
 {
     const canvas = document.getElementById('canvas1');
     const context = canvas.getContext('2d');
     const radius=width/2
+    // context.globalCompositeOperation = 'lighter';
 
     let gradient = context.createRadialGradient(x-radius, y, 0, x-radius, y, width);
-    gradient.addColorStop(0.2, 'transparent'); //inner Color
-    gradient.addColorStop(0.5, color);         // Center color
-    gradient.addColorStop(0.8, 'transparent');  // Outer color
+    custom_gradient(gradient,color);
 
     
     context.beginPath();
     context.arc(x-radius, y, radius, 0, Math.PI/2, false);
     context.strokeStyle = gradient;
-    context.lineWidth = 20;
+    context.lineWidth = 0.4*width;
     context.stroke();
-
-    gradient = context.createRadialGradient(x-radius, y+width, 0, x-radius, y+width, width);      
-    gradient.addColorStop(0.2, 'transparent'); //inner Color
-    gradient.addColorStop(0.5, color);         // Center color
-    gradient.addColorStop(0.8, 'transparent');  // Outer color
-
+    
+    gradient = context.createRadialGradient(x-radius, y+width, 0, x-radius, y+width, width); 
+    custom_gradient(gradient,color);
+    
     context.beginPath();
     context.arc(x-radius, y+width, radius, Math.PI,Math.PI*3/2, false);
     context.strokeStyle = gradient;
-    context.lineWidth = 20;
+    context.lineWidth =0.4*width;
     context.stroke();
 }
+function draw_Right_Branch(x,y,width,color='blue')
+{
+    const canvas = document.getElementById('canvas1');
+    const context = canvas.getContext('2d');
+    const radius=width/2
+    // context.globalCompositeOperation = 'lighter';
+
+    let gradient = context.createRadialGradient(x+radius, y, 0, x+radius, y, width);
+    custom_gradient(gradient,color);
+    
+    
+    context.beginPath();
+    context.arc(x+radius, y, radius, Math.PI/2, Math.PI, false);
+    context.strokeStyle = gradient;
+    context.lineWidth = width*0.4;
+    context.stroke();
+    
+    gradient = context.createRadialGradient(x+radius, y+width, 0, x+radius, y+width, width);      
+    custom_gradient(gradient,color);
+
+    context.beginPath();
+    context.arc(x+radius, y+width, radius, Math.PI*3/2, 0,false);
+    context.strokeStyle = gradient;
+    context.lineWidth = width*0.4;
+    context.stroke();
+}
+
+function draw_Stop(x, y, width,color='blue') {
+    const radius=width/2;
+    const canvas = document.getElementById('canvas1');
+    const context = canvas.getContext('2d');
+
+    // Create a radial gradient
+    const gradient = context.createRadialGradient(x, y, 0, x, y, radius);
+    if(color!='white'){
+        gradient.addColorStop(0.2, color);        // Inner color
+        gradient.addColorStop(1, 'transparent'); // Outer color
+    }
+    else{
+        gradient.addColorStop(0.01, 'white');        // Inner color
+        gradient.addColorStop(0.5, 'transparent'); // Outer color
+    }
+
+    // Draw the circle with the gradient fill
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2);
+    context.fillStyle = gradient;
+    context.fill();
+}
+
+
+function draw_screen(n,loopCount)
+{
+    const canvas = document.getElementById('canvas1');
+    const block_width=Math.round(canvas.width/(n+1));
+    const color='blue'
+    for(let i=0;i<screen.length;i+=2)
+    {
+        let level=[screen[i]];
+        level.push(screen[i+1]);
+        // console.log((level[0].length));
+        for(let j=2;j<level[0].length-2;j+=2)
+        {
+            if(level[1][j]==1)
+            {
+                if( level[0][j+1]==1)
+                {
+                    draw_Left_Branch(block_width*(j/2+0.75),block_width*(i+1),block_width,color);
+                    // console.log("flag1");
+                }
+                else{
+                    draw_Right_Branch(block_width*(j/2-0.25),block_width*(1+i),block_width,color);
+                    // console.log("flag2");
+                }
+            }
+            // console.log("flag3");
+        }
+        for(let j=1;j<level[0].length-1;j+=2)
+        {
+            if(level[1][j]==1 && level[0][j]==1)
+            {
+                draw_Line(block_width*(j/2+0.25),block_width*i,block_width,color);
+                draw_Line(block_width*(j/2+0.25),block_width*(i+1),block_width,color);
+            }
+            // console.log("flag3");
+        }
+        for(let j=1;j<level[0].length-1;j+=2)
+        {
+            if(level[0][j]==0 && i>0 && screen[i-1][j]==1)
+            {
+                draw_Stop(block_width*(j/2+0.25),block_width*i,block_width,color);
+            }
+            // console.log("flag3");
+        }
+        // console.log("flag4");
+        if(i==screen.length-2)
+        {
+            for(let j=1;j<level[0].length-1;j+=2)
+            {
+                if(level[1][j]==1)
+                {
+                    draw_Stop(block_width*(j/2+0.25),block_width*(i+2),block_width,color);
+                }
+            }
+        }
+        for(let j=2;j<level[0].length-2;j+=2)
+        {
+            if(level[1][j]==1)
+            {
+                if( level[0][j+1]==1)
+                {
+                    draw_Left_Branch(block_width*(j/2+0.75),block_width*(i+1),block_width,'white');
+                    // console.log("flag1");
+                }
+                else{
+                    draw_Right_Branch(block_width*(j/2-0.25),block_width*(1+i),block_width,'white');
+                    // console.log("flag2");
+                }
+            }
+            // console.log("flag3");
+        }
+        for(let j=1;j<level[0].length-1;j+=2)
+        {
+            if(level[1][j]==1 && level[0][j]==1)
+            {
+                draw_Line(block_width*(j/2+0.25),block_width*i,block_width,'white');
+                draw_Line(block_width*(j/2+0.25),block_width*(i+1),block_width,'white');
+            }
+            // console.log("flag3");
+        }
+        for(let j=1;j<level[0].length-1;j+=2)
+        {
+            if(level[0][j]==0 && i>0 && screen[i-1][j]==1)
+            {
+                draw_Stop(block_width*(j/2+0.25),block_width*i,block_width,'white');
+            }
+            // console.log("flag3");
+        }
+        // console.log("flag4");
+        if(i==screen.length-2)
+        {
+            for(let j=1;j<level[0].length-1;j+=2)
+            {
+                if(level[1][j]==1)
+                {
+                    draw_Stop(block_width*(j/2+0.25),block_width*(i+2),block_width,'white');
+                }
+            }
+        }
+    }
+    console.log("done");
+}
+
+
+function checkClear(){
+    for(let i=0;i<screen[0].length;i++)
+        if(screen[screen.length-1][i]==1)
+            return false;
+    return true;
+}
+
+
+function custom_gradient(obj,color){  
+    if(color!='white'){
+        obj.addColorStop(0.2, 'transparent'); //inner Color
+        obj.addColorStop(0.5, color);         // Center color
+        obj.addColorStop(0.8, 'transparent');  // Outer color
+    }
+    else{
+        obj.addColorStop(0.45, 'transparent'); //inner Color
+        obj.addColorStop(0.5, 'white');         // Center color
+        obj.addColorStop(0.55, 'transparent');  // Outer color
+    }
+
+}
+
+function main() {
+    let n = parseInt(prompt("Enter maximum no of branches"));
+    let loopCount = parseInt(prompt("Enter no of levels"));
+    // let n=7
+    // let loopCount=7
+    const canvas = document.getElementById('canvas1');
+    canvas.width = window.innerWidth;
+    // canvas.width = 900;
+    console.log(window.innerWidth)
+    let height=Math.round(canvas.width/(n+1))*(2*loopCount+3)
+    canvas.height = height;
+    let fullTree=false
+    do{
+        screen=[]
+        fullTree=false
+        let branchPath = new Array(n).fill(-1);
+        branchPath[Math.floor(n / 2)] = 1;
+        blit(branchPath);
+        logScreen();
+        for (let i = 0; i < loopCount; i++) {
+            randDel(branchPath);
+            blit(branchPath);
+            randBranch(branchPath);
+            fullTree=fullTree|checkClear();
+        }
+        logScreen();
+    }while(fullTree);
+    draw_screen(n,loopCount);
+}
+main();
