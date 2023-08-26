@@ -1,0 +1,104 @@
+/* Base styles for the diagram */
+table {
+    border-collapse: collapse;
+}
+
+td {
+    padding: 20px;
+}
+
+/* Define the CSS classes for the image structures */
+.line {
+    width: 10px;
+    height: 100px;
+    background-color: black;
+}
+
+.right-branch {
+    width: 100px;
+    height: 100px;
+    position: relative;
+}
+
+.right-branch::before,
+.right-branch::after {
+    content: '';
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: black;
+}
+
+.right-branch::before {
+    top: 0;
+    left: 0;
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.right-branch::after {
+    bottom: 0;
+    right: 0;
+    transform: translate(50%, 50%) rotate(-45deg);
+}
+
+.left-branch {
+    width: 100px;
+    height: 100px;
+    position: relative;
+}
+
+.left-branch::before,
+.left-branch::after {
+    content: '';
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: black;
+}
+
+.left-branch::before {
+    top: 0;
+    right: 0;
+    transform: translate(50%, -50%) rotate(-45deg);
+}
+
+.left-branch::after {
+    bottom: 0;
+    left: 0;
+    transform: translate(-50%, 50%) rotate(45deg);
+}
+
+.branch-end {
+    width: 30px;
+    height: 30px;
+    background-color: red;
+    border-radius: 50%;
+}
+
+.quarter-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 0 0 0 100%;
+    background-color: blue;
+}
+
+.hollow-quarter-circle {
+    width: 50px;
+    height: 25px; /* Adjust the height for the curved segment */
+    border-radius: 50% 50% 0 0; /* Only top border-radius for the curved segment */
+    background: transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.hollow-quarter-circle::before {
+    content: '';
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: blue;
+    top: -25px; /* Adjust the position */
+}
