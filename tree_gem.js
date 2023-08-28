@@ -323,6 +323,110 @@ function custom_gradient(obj,color){
 
 }
 
+
+
+function pull_wall(n){
+    const canvas2 = document.getElementById('canvas2');
+    const context2 = canvas2.getContext('2d');
+    const block_width=Math.round(canvas2.width/(n+1));
+    console.log(block_width);
+    // let DropBy=canvas2.height/10;
+    // while(DropBy<canvas2.height/3)
+    // {
+    //     setTimeout(function() {
+    //         context2.globalCompositeOperation = 'destination-out';
+    //         context2.clearRect(0, 0, canvas2.width, DropBy);
+    //         context2.globalCompositeOperation = 'source-over';
+    //     }, 2000);
+    //     DropBy+=canvas2.height/1000;
+    // }
+    let lineHeight = block_width/10; // Height of each line
+    if(lineHeight<3)
+        lineHeight+=-lineHeight+3
+    const totalLines = Math.ceil(canvas2.height / lineHeight); // Total number of lines
+
+    const canvas4 = document.getElementById('canvas3');
+    const context4 = canvas4.getContext('2d');
+
+    // Define the object's properties
+    const objectWidth = block_width;
+    const objectHeight = block_width;
+    const objectColor = 'red';
+
+    // Function to draw the object
+    function drawObject(offscreen_context,x, y,width,color='blue') {
+        const radius=width/2;
+        // Create a radial gradient
+        let gradient = offscreen_context.createRadialGradient(x, y, 0, x, y, radius);
+        if(color!='white'){
+            gradient.addColorStop(0.2, color);        // Inner color
+            gradient.addColorStop(1, 'transparent'); // Outer color
+        }
+        else{
+            gradient.addColorStop(0.01, 'white');        // Inner color
+            gradient.addColorStop(0.5, 'transparent'); // Outer color
+        }
+
+        // Draw the circle with the gradient fill
+        offscreen_context.beginPath();
+        offscreen_context.arc(x, y, radius, 0, Math.PI * 2);
+        offscreen_context.fillStyle = gradient;
+        offscreen_context.fill();
+    }
+
+    // Create an off-screen canvas to draw the object as an image
+    const offscreen_canvas = document.createElement('canvas');
+    offscreen_canvas.width = objectWidth;
+    offscreen_canvas.height = objectHeight;
+    const offscreen_context = offscreen_canvas.getContext('2d');
+    drawObject(offscreen_context,block_width/2,block_width/2,block_width,'blue');
+    drawObject(offscreen_context,block_width/2,block_width/2,block_width,'white');
+    // offscreen_context.fillStyle = objectColor;
+    // offscreen_context.fillRect(0, 0, objectWidth, objectHeight);
+
+    // Create an image pattern from the off-screen canvas
+    const objectPattern = context4.createPattern(offscreen_canvas, 'no-repeat');
+    
+    // Function to draw object using the pattern
+    function drawObjectUsingPattern(x, y) {
+        context4.drawImage(offscreen_canvas,x,y)
+    }
+    
+
+
+    function animateCanvas() {
+        let currentLine = 0;
+        function clearNextLine() {
+            context2.clearRect(0, currentLine * lineHeight, canvas2.width, lineHeight);
+            currentLine++;
+            
+            context4.clearRect(0, 0, canvas4.width, canvas4.height);
+        
+            // Use the pattern to draw the object at different locations
+            rownum=Math.ceil(currentLine/7);
+            if(rownum<1)
+                drawObjectUsingPattern((screen[0].length/2-0.5)*block_width/2, currentLine * lineHeight-block_width/2);
+            for(let i=1;rownum<screen.length && i<screen[rownum].length && rownum>0;i+=2){
+                if(screen[rownum-1][i]==1)
+                    drawObjectUsingPattern((i-0.5)*block_width/2, currentLine * lineHeight-block_width/2);
+            }
+            // drawObjectUsingPattern(100+block_width/2, currentLine * lineHeight-block_width/2);
+            if (rownum==screen.length)
+                context4.clearRect(0, 0, canvas4.width, canvas4.height);;
+                
+            // Request the next animation frame
+            if (currentLine < totalLines) {
+                setTimeout(clearNextLine, 50); // Adjust the delay as needed
+            }
+            // requestAnimationFrame(animate);
+        }
+
+        clearNextLine();
+    }
+    animateCanvas();
+}
+
+
 function main() {
     let n = parseInt(prompt("Enter maximum no of branches"));
     let loopCount = parseInt(prompt("Enter no of levels"));
@@ -334,6 +438,15 @@ function main() {
     console.log(window.innerWidth)
     let height=Math.round(canvas.width/(n+1))*(2*loopCount+3)
     canvas.height = height;
+    const overlay = document.getElementById('canvas2');
+    overlay.width=canvas.width;
+    overlay.height=canvas.height;
+    const overlay2 = document.getElementById('canvas3');
+    overlay2.width=canvas.width;
+    overlay2.height=canvas.height;
+    const context = overlay.getContext('2d');
+    context.fillStyle = 'black';
+    context.fillRect(0, 0, overlay.width, overlay.height);
     let fullTree=false
     do{
         screen=[]
@@ -351,5 +464,6 @@ function main() {
         logScreen();
     }while(fullTree);
     draw_screen(n,loopCount);
+    pull_wall(n);
 }
 main();

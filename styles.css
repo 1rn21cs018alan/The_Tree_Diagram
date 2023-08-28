@@ -1,3 +1,10 @@
+.anchored_Canvas{
+    position:absolute;
+    top:0;
+    left:0;
+}
+
+
 /* Base styles for the diagram */
 table {
     border-collapse: collapse;
